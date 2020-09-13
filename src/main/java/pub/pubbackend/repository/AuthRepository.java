@@ -7,5 +7,5 @@ import java.util.List;
 
 //JpaRepository gives support for creating instances, updating, deleting and finding them
 public interface AuthRepository extends JpaRepository<User, Long> {
-//    List<User> loginUser(User user);
+    List<User> findUserByEmailAndPassword(String email, String password);
 }

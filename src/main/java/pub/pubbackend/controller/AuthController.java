@@ -18,17 +18,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import pub.pubbackend.model.Restaurant;
 import pub.pubbackend.model.Tutorial;
 import pub.pubbackend.model.User;
 import pub.pubbackend.repository.AuthRepository;
+import pub.pubbackend.repository.RestaurantRepository;
 
-@CrossOrigin(origins = "*")
+
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api")
 
 public class AuthController {
     @Autowired
     AuthRepository authRepository;
+
+    @Autowired
+    RestaurantRepository restaurantRepository;
 
     //Register user
     @PostMapping("/register")
@@ -66,19 +72,31 @@ public class AuthController {
         }
     }
 
-//    @GetMapping("/login")
-//    public ResponseEntity<List<User>> loginUser(@RequestBody User userParam) {
-//        try {
-//            List<User> user = authRepository.loginUser(userParam);
-//
-//            if (user.isEmpty()) {
-//                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//            }
-//            return new ResponseEntity<>(user, HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @GetMapping("/profile-restaurant/{id}")
+    public ResponseEntity<Restaurant> getResturantByUserId(@PathVariable("id") String id) {
+       List <Restaurant> restaurant = restaurantRepository.findByUserId(id);
+
+        System.out.println(restaurant);
+        if (restaurant != null) {
+            return new ResponseEntity(restaurant, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<List<User>> login(@RequestBody User userParam) {
+        try {
+            List<User> user = authRepository.findUserByEmailAndPassword(userParam.getEmail(), userParam.getPassword());
+
+            if (user.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     //Update user profile
     @PutMapping("/update/{id}")
