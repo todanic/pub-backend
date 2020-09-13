@@ -72,13 +72,14 @@ public class AuthController {
         }
     }
 
+    //Get restaurant data
     @GetMapping("/profile-restaurant/{id}")
     public ResponseEntity<Restaurant> getResturantByUserId(@PathVariable("id") String id) {
        List <Restaurant> restaurant = restaurantRepository.findByUserId(id);
 
         System.out.println(restaurant);
         if (restaurant != null) {
-            return new ResponseEntity(restaurant, HttpStatus.OK);
+            return new ResponseEntity(restaurant.get(0), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -109,9 +110,40 @@ public class AuthController {
             _user.setName(user.getName());
             _user.setRestaurantName(user.getRestaurantName());
             _user.setPassword(user.getPassword());
+
             return new ResponseEntity<>(authRepository.save(_user), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    //Update restaurant data
+    @PutMapping("/update-restaurant/")
+    public ResponseEntity<User> updateRestaurantInfo(@RequestBody Restaurant restaurantParams) {
+        Optional <Restaurant> restaurant = restaurantRepository.findById(restaurantParams.getId());
+
+        if (restaurant.isPresent()) {
+            Restaurant _restaurant = restaurant.get();
+            _restaurant.setDescription(restaurantParams.getDescription());
+            _restaurant.setPhone(restaurantParams.getPhone());
+            _restaurant.setRestaurantName(restaurantParams.getRestaurantName());
+            _restaurant.setAddress(restaurantParams.getAddress());
+
+            return  new ResponseEntity(restaurantRepository.save(_restaurant), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/restaurants")
+    public ResponseEntity<User> getRestaurants() {
+        List<Restaurant> restaurants = restaurantRepository.findAll();
+
+        if (restaurants != null) {
+            return new ResponseEntity(restaurants, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }
