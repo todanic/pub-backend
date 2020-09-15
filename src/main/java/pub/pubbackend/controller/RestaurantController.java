@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import pub.pubbackend.model.Restaurant;
+import pub.pubbackend.model.User;
 import pub.pubbackend.repository.RestaurantRepository;
 
 @CrossOrigin(origins = "http://localhost:8081")
@@ -28,16 +29,46 @@ public class RestaurantController {
     @Autowired
     RestaurantRepository restaurantRepository;
 
-    //Register restaurant
-    @PostMapping("/register-restaurant")
-    public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
-        try {
+    //Get restaurant data
+    @GetMapping("/profile-restaurant/{id}")
+    public ResponseEntity<Restaurant> getResturantByUserId(@PathVariable("id") String id) {
+        List <Restaurant> restaurant = restaurantRepository.findByUserId(id);
 
-            Restaurant _restaurant = restaurantRepository
-                    .save(new Restaurant(restaurant.getUserId(), restaurant.getRestaurantName()));
-            return new ResponseEntity<>(_restaurant, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        System.out.println(restaurant);
+        if (restaurant != null) {
+            return new ResponseEntity(restaurant.get(0), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    //Update restaurant data
+    @PutMapping("/update-restaurant/")
+    public ResponseEntity<User> updateRestaurantInfo(@RequestBody Restaurant restaurantParams) {
+        Optional <Restaurant> restaurant = restaurantRepository.findById(restaurantParams.getId());
+
+        if (restaurant.isPresent()) {
+            Restaurant _restaurant = restaurant.get();
+            _restaurant.setDescription(restaurantParams.getDescription());
+            _restaurant.setPhone(restaurantParams.getPhone());
+            _restaurant.setRestaurantName(restaurantParams.getRestaurantName());
+            _restaurant.setAddress(restaurantParams.getAddress());
+
+            return  new ResponseEntity(restaurantRepository.save(_restaurant), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    //List restaurants for homepage
+    @GetMapping("/restaurants")
+    public ResponseEntity<User> getRestaurants() {
+        List<Restaurant> restaurants = restaurantRepository.findAll();
+
+        if (restaurants != null) {
+            return new ResponseEntity(restaurants, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }

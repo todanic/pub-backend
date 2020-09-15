@@ -18,11 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import pub.pubbackend.model.Restaurant;
-import pub.pubbackend.model.Tutorial;
 import pub.pubbackend.model.User;
 import pub.pubbackend.repository.AuthRepository;
-import pub.pubbackend.repository.RestaurantRepository;
 
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -32,9 +29,6 @@ import pub.pubbackend.repository.RestaurantRepository;
 public class AuthController {
     @Autowired
     AuthRepository authRepository;
-
-    @Autowired
-    RestaurantRepository restaurantRepository;
 
     //Register user
     @PostMapping("/register")
@@ -72,19 +66,6 @@ public class AuthController {
         }
     }
 
-    //Get restaurant data
-    @GetMapping("/profile-restaurant/{id}")
-    public ResponseEntity<Restaurant> getResturantByUserId(@PathVariable("id") String id) {
-       List <Restaurant> restaurant = restaurantRepository.findByUserId(id);
-
-        System.out.println(restaurant);
-        if (restaurant != null) {
-            return new ResponseEntity(restaurant.get(0), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
     @PostMapping("/login")
     public ResponseEntity<List<User>> login(@RequestBody User userParam) {
         try {
@@ -116,34 +97,5 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-    //Update restaurant data
-    @PutMapping("/update-restaurant/")
-    public ResponseEntity<User> updateRestaurantInfo(@RequestBody Restaurant restaurantParams) {
-        Optional <Restaurant> restaurant = restaurantRepository.findById(restaurantParams.getId());
-
-        if (restaurant.isPresent()) {
-            Restaurant _restaurant = restaurant.get();
-            _restaurant.setDescription(restaurantParams.getDescription());
-            _restaurant.setPhone(restaurantParams.getPhone());
-            _restaurant.setRestaurantName(restaurantParams.getRestaurantName());
-            _restaurant.setAddress(restaurantParams.getAddress());
-
-            return  new ResponseEntity(restaurantRepository.save(_restaurant), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping("/restaurants")
-    public ResponseEntity<User> getRestaurants() {
-        List<Restaurant> restaurants = restaurantRepository.findAll();
-
-        if (restaurants != null) {
-            return new ResponseEntity(restaurants, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
+    
 }
