@@ -34,7 +34,6 @@ public class RestaurantController {
     public ResponseEntity<Restaurant> getResturantByUserId(@PathVariable("id") String id) {
         List <Restaurant> restaurant = restaurantRepository.findByUserId(id);
 
-        System.out.println(restaurant);
         if (restaurant != null) {
             return new ResponseEntity(restaurant.get(0), HttpStatus.OK);
         } else {
