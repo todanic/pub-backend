@@ -29,13 +29,37 @@ public class RestaurantController {
     @Autowired
     RestaurantRepository restaurantRepository;
 
-    //Get restaurant data
+    //Register restaurant
+    @PostMapping("/register-restaurant")
+    public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
+        try {
+
+            Restaurant _restaurant = restaurantRepository
+                    .save(new Restaurant(restaurant.getUserId(), restaurant.getRestaurantName()));
+            return new ResponseEntity<>(_restaurant, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //Get restaurant data by user id
     @GetMapping("/profile-restaurant/{id}")
     public ResponseEntity<Restaurant> getResturantByUserId(@PathVariable("id") String id) {
         List <Restaurant> restaurant = restaurantRepository.findByUserId(id);
 
         if (restaurant != null) {
             return new ResponseEntity(restaurant.get(0), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/restaurant-profile/{id}")
+    public ResponseEntity<Restaurant> getResturantById(@PathVariable("id") Long id) {
+        Optional <Restaurant> restaurant = restaurantRepository.findById(id);
+
+        if (restaurant != null) {
+            return new ResponseEntity(restaurant.get(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

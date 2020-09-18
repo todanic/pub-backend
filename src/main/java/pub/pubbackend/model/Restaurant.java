@@ -10,7 +10,7 @@ public class Restaurant {
 
     @Column(name = "address")
     private String address;
-
+    
     @Column(name = "restaurantName")
     private String restaurantName;
 
@@ -52,7 +52,6 @@ public class Restaurant {
     }
 
     public String getUserId() {
-        System.out.println(userId);
         return userId;
     }
 

@@ -23,16 +23,15 @@ public class NotificationService  {
         msg.setFrom(email);
         msg.setSubject("Contact us!!");
         msg.setText(text);
-        System.out.println(javaMailSender);
+
         try {
             javaMailSender.send(msg);
             return "success";
         } catch (Exception  e) {
             e.printStackTrace();
-            System.out.println(e);
+
             return "fail";
         }
 
-//        return "success";
     }
 }
