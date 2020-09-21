@@ -1,25 +1,28 @@
 package pub.pubbackend.controller;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.multipart.MultipartFile;
 import pub.pubbackend.model.Restaurant;
 import pub.pubbackend.model.User;
+import pub.pubbackend.model.Photo;
 import pub.pubbackend.repository.RestaurantRepository;
+import pub.pubbackend.repository.PhotoRepository;
+
 
 @CrossOrigin(origins = "http://localhost:8081")
 @RestController
@@ -28,6 +31,9 @@ import pub.pubbackend.repository.RestaurantRepository;
 public class RestaurantController {
     @Autowired
     RestaurantRepository restaurantRepository;
+    PhotoRepository photoRepository;
+
+    public static String uploadDirectory = System.getProperty("user.dir")+"/photos";
 
     //Register restaurant
     @PostMapping("/register-restaurant")
@@ -67,7 +73,7 @@ public class RestaurantController {
 
     //Update restaurant data
     @PutMapping("/update-restaurant/")
-    public ResponseEntity<User> updateRestaurantInfo(@RequestBody Restaurant restaurantParams) {
+    public ResponseEntity updateRestaurantInfo(@RequestBody Restaurant restaurantParams) {
         Optional <Restaurant> restaurant = restaurantRepository.findById(restaurantParams.getId());
 
         if (restaurant.isPresent()) {
@@ -81,6 +87,34 @@ public class RestaurantController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    //Upload restaurant profile image
+    @RequestMapping(value = "/update-restaurant-photo/" , method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<User> updateRestaurantInfo(@RequestParam(value = "file") MultipartFile file) {
+        Path fileNameAndPath = Paths.get(uploadDirectory, file.getOriginalFilename());
+System.out.println(fileNameAndPath);
+        //Write img to photos folder
+        try {
+            byte[] bytes = file.getBytes();
+            Files.write(fileNameAndPath, bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        //Encode image as base64
+        String imageBase64 = "";
+
+        try {
+            imageBase64 = Base64.getEncoder().encodeToString(file.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+
+        return new ResponseEntity(imageBase64, HttpStatus.OK);
     }
 
     //List restaurants for homepage
