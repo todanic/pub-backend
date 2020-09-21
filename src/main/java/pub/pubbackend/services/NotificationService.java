@@ -22,7 +22,7 @@ public class NotificationService  {
         msg.setTo("teodoraodanic96@gmail.com");
         msg.setFrom(email);
         msg.setSubject("Contact us!!");
-        msg.setText(text);
+        msg.setText(text + "Email: " + email);
 
         try {
             javaMailSender.send(msg);

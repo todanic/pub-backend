@@ -17,6 +17,9 @@ public class Photo {
     @Column(name = "filename")
     private String filename;
 
+    @Column(name = "size")
+    private byte[] size;
+
     public Photo() {
 
     }
@@ -35,6 +38,10 @@ public class Photo {
     public String getRestaurantId() { return restaurantId; }
 
     public void setRestaurantId(String restaurantId) { this.restaurantId = restaurantId; }
+
+    public byte[] getSize() { return size; }
+
+    public void setSize(byte[] size) { this.size = size; }
 
     public String getPath() { return path; }
 

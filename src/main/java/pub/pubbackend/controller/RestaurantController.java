@@ -6,12 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +29,7 @@ import pub.pubbackend.repository.PhotoRepository;
 public class RestaurantController {
     @Autowired
     RestaurantRepository restaurantRepository;
+    @Autowired
     PhotoRepository photoRepository;
 
     public static String uploadDirectory = System.getProperty("user.dir")+"/photos";
@@ -91,9 +90,9 @@ public class RestaurantController {
 
     //Upload restaurant profile image
     @RequestMapping(value = "/update-restaurant-photo/" , method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<User> updateRestaurantInfo(@RequestParam(value = "file") MultipartFile file) {
+    public ResponseEntity<User> updateRestaurantInfo(@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam(value = "restaurantId") String id) {
         Path fileNameAndPath = Paths.get(uploadDirectory, file.getOriginalFilename());
-System.out.println(fileNameAndPath);
+
         //Write img to photos folder
         try {
             byte[] bytes = file.getBytes();
@@ -113,6 +112,17 @@ System.out.println(fileNameAndPath);
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
 
+        //Save photo to the db
+        try {
+            Photo _photo = new Photo();
+            _photo.setRestaurantId(id);
+            _photo.setPath(fileNameAndPath.toString());
+            _photo.setFilename(file.getOriginalFilename());
+            photoRepository.save(_photo);
+        } catch (Exception e) {
+            System.out.println(e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         return new ResponseEntity(imageBase64, HttpStatus.OK);
     }
