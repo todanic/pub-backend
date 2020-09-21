@@ -24,14 +24,20 @@ public class AuthController {
 
     //Register user
     @PostMapping("/register")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        try {
+    public ResponseEntity<User> createUser(@RequestBody User userParam) {
+        Optional<User> user = authRepository.findByEmail(userParam.getEmail());
 
-            User _user = authRepository
-                    .save(new User(user.getEmail(), user.getName(), user.getRestaurantName(), user.getPassword()));
-            return new ResponseEntity<>(_user, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        if (!user.isPresent()) {
+            try {
+                User _user = authRepository
+                        .save(new User(userParam.getEmail(), userParam.getName(), userParam.getRestaurantName(), userParam.getPassword()));
+                return new ResponseEntity<>(_user, HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            System.out.println("dada");
+            return new ResponseEntity("Email already exists", HttpStatus.OK);
         }
     }
 
